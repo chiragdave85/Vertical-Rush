@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Neon Stack</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0a;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #score-display {
+      position: absolute;
+      top: 30px;
+      font-size: 64px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      z-index: 10;
+      letter-spacing: 2px;
+    }
+
+    #perfect-text {
+      position: absolute;
+      top: 110px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffea00;
+      text-shadow: 0 0 15px rgba(255, 234, 0, 0.8), 0 0 30px rgba(255, 234, 0, 0.4);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      letter-spacing: 4px;
+    }
+
+    #perfect-text.show {
+      opacity: 1;
+    }
+
+    #game-over-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    #game-over-screen.show {
+      display: flex;
+    }
+
+    #game-over-title {
+      font-size: 48px;
+      font-weight: 700;
+      color: #ff1744;
+      text-shadow: 0 0 20px rgba(255, 23, 68, 0.7), 0 0 40px rgba(255, 23, 68, 0.3);
+      margin-bottom: 10px;
+      letter-spacing: 3px;
+    }
+
+    #game-over-score {
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+
+    #game-over-best {
+      font-size: 18px;
+      color: #aaa;
+      margin-bottom: 40px;
+    }
+
+    #restart-btn {
+      padding: 15px 50px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      background: transparent;
+      border: 2px solid #fff;
+      border-radius: 50px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      pointer-events: auto;
+    }
+
+    #restart-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    #start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    #start-screen.hide {
+      display: none;
+    }
+
+    #start-title {
+      font-size: 52px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.3);
+      margin-bottom: 50px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    #tap-to-start {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 3px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <div id="ui-overlay">
+    <div id="score-display">0</div>
+    <div id="perfect-text">PERFECT</div>
+  </div>
+
+  <div id="start-screen">
+    <div id="start-title">Neon Stack</div>
+    <div id="tap-to-start">TAP TO START</div>
+  </div>
+
+  <div id="game-over-screen">
+    <div id="game-over-title">GAME OVER</div>
+    <div id="game-over-score">Score: 0</div>
+    <div id="game-over-best">Best: 0</div>
+    <button id="restart-btn">Play Again</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI elements
+    const scoreDisplay = document.getElementById('score-display');
+    const perfectText = document.getElementById('perfect-text');
+    const startScreen = document.getElementById('start-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const gameOverScore = document.getElementById('game-over-score');
+    const gameOverBest = document.getElementById('game-over-best');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // Game constants
+    const BLOCK_HEIGHT = 30;
+    const INITIAL_BLOCK_WIDTH = 200;
+    const PERFECT_THRESHOLD = 5;
+    const BASE_SPEED = 3;
+    const SPEED_INCREMENT = 0.15;
+    const MAX_SPEED = 10;
+
+    // Neon color palette
+    const NEON_COLORS = [
+      { r: 0, g: 255, b: 255 },    // Cyan
+      { r: 255, g: 0, b: 255 },    // Magenta
+      { r: 0, g: 255, b: 128 },    // Green
+      { r: 255, g: 255, b: 0 },    // Yellow
+      { r: 255, g: 0, b: 128 },    // Pink
+      { r: 128, g: 0, b: 255 },    // Purple
+      { r: 0, g: 128, b: 255 },    // Blue
+      { r: 255, g: 128, b: 0 },    // Orange
+      { r: 0, g: 255, b: 64 },     // Lime
+      { r: 255, g: 64, b: 128 },   // Rose
+    ];
+
+    // Game state
+    let W, H;
+    let score = 0;
+    let bestScore = parseInt(localStorage.getItem('neonStackBest') || '0');
+    let gameState = 'start'; // start, playing, gameover
+    let stack = [];
+    let currentBlock = null;
+    let fallingPieces = [];
+    let particles = [];
+    let cameraY = 0;
+    let targetCameraY = 0;
+    let perfectStreak = 0;
+    let perfectTimer = 0;
+    let shakeAmount = 0;
+    let colorIndex = 0;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    function getColor(index) {
+      return NEON_COLORS[index % NEON_COLORS.length];
+    }
+
+    function colorToString(c, alpha) {
+      if (alpha !== undefined) {
+        return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+      }
+      return `rgb(${c.r}, ${c.g}, ${c.b})`;
+    }
+
+    function initGame() {
+      score = 0;
+      stack = [];
+      fallingPieces = [];
+      particles = [];
+      cameraY = 0;
+      targetCameraY = 0;
+      perfectStreak = 0;
+      perfectTimer = 0;
+      shakeAmount = 0;
+      colorIndex = 0;
+
+      scoreDisplay.textContent = '0';
+
+      // Base block (foundation)
+      const baseY = H - 80;
+      stack.push({
+        x: (W - INITIAL_BLOCK_WIDTH) / 2,
+        y: baseY,
+        width: INITIAL_BLOCK_WIDTH,
+        height: BLOCK_HEIGHT,
+        color: getColor(colorIndex++)
+      });
+
+      spawnBlock();
+    }
+
+    function spawnBlock() {
+      const top = stack[stack.length - 1];
+      const speed = Math.min(BASE_SPEED + score * SPEED_INCREMENT, MAX_SPEED);
+      const direction = score % 2 === 0 ? 1 : -1;
+      const startX = direction === 1 ? -top.width : W;
+
+      currentBlock = {
+        x: startX,
+        y: top.y - BLOCK_HEIGHT,
+        width: top.width,
+        height: BLOCK_HEIGHT,
+        speed: speed * direction,
+        color: getColor(colorIndex++)
+      };
+    }
+
+    function placeBlock() {
+      if (!currentBlock) return;
+
+      const top = stack[stack.length - 1];
+      const overlap = Math.min(currentBlock.x + currentBlock.width, top.x + top.width) -
+                       Math.max(currentBlock.x, top.x);
+
+      if (overlap <= 0) {
+        // Missed completely
+        fallingPieces.push({
+          x: currentBlock.x,
+          y: currentBlock.y,
+          width: currentBlock.width,
+          height: currentBlock.height,
+          color: currentBlock.color,
+          vy: 0,
+          vx: currentBlock.speed * 0.5,
+          rotation: 0,
+          rotSpeed: (Math.random() - 0.5) * 0.1
+        });
+        gameOver();
+        return;
+      }
+
+      const newX = Math.max(currentBlock.x, top.x);
+      const isPerfect = Math.abs(currentBlock.x - top.x) < PERFECT_THRESHOLD;
+
+      if (isPerfect) {
+        // Perfect placement - keep same width, align perfectly
+        perfectStreak++;
+        const placedBlock = {
+          x: top.x,
+          y: currentBlock.y,
+          width: top.width,
+          height: BLOCK_HEIGHT,
+          color: currentBlock.color
+        };
+        stack.push(placedBlock);
+
+        // Grow width slightly on streak
+        if (perfectStreak > 1 && placedBlock.width < INITIAL_BLOCK_WIDTH) {
+          placedBlock.width = Math.min(placedBlock.width + 5, INITIAL_BLOCK_WIDTH);
+          placedBlock.x = top.x + (top.width - placedBlock.width) / 2;
+        }
+
+        // Show perfect text
+        perfectText.classList.add('show');
+        perfectTimer = 60;
+
+        // Perfect particles
+        spawnPerfectParticles(placedBlock);
+
+        shakeAmount = 3;
+      } else {
+        perfectStreak = 0;
+
+        // Cut the overhanging part
+        const placedBlock = {
+          x: newX,
+          y: currentBlock.y,
+          width: overlap,
+          height: BLOCK_HEIGHT,
+          color: currentBlock.color
+        };
+        stack.push(placedBlock);
+
+        // Create falling piece for the cut part
+        const cutRight = currentBlock.x < top.x;
+        const cutPiece = {
+          x: cutRight ? currentBlock.x : newX + overlap,
+          y: currentBlock.y,
+          width: currentBlock.width - overlap,
+          height: BLOCK_HEIGHT,
+          color: currentBlock.color,
+          vy: 0,
+          vx: cutRight ? -2 : 2,
+          rotation: 0,
+          rotSpeed: (Math.random() - 0.5) * 0.08
+        };
+        fallingPieces.push(cutPiece);
+
+        shakeAmount = 1.5;
+      }
+
+      score++;
+      scoreDisplay.textContent = score;
+
+      // Camera scrolling
+      const blockScreenY = currentBlock.y - cameraY;
+      if (blockScreenY < H * 0.45) {
+        targetCameraY -= BLOCK_HEIGHT;
+      }
+
+      spawnBlock();
+    }
+
+    function spawnPerfectParticles(block) {
+      const cx = block.x + block.width / 2;
+      const cy = block.y;
+      for (let i = 0; i < 25; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 4;
+        particles.push({
+          x: cx + (Math.random() - 0.5) * block.width,
+          y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 2,
+          life: 1,
+          decay: 0.01 + Math.random() * 0.02,
+          size: 2 + Math.random() * 4,
+          color: block.color
+        });
+      }
+    }
+
+    function gameOver() {
+      gameState = 'gameover';
+      currentBlock = null;
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('neonStackBest', bestScore);
+      }
+
+      gameOverScore.textContent = `Score: ${score}`;
+      gameOverBest.textContent = `Best: ${bestScore}`;
+
+      setTimeout(() => {
+        gameOverScreen.classList.add('show');
+      }, 500);
+    }
+
+    function update() {
+      // Perfect text timer
+      if (perfectTimer > 0) {
+        perfectTimer--;
+        if (perfectTimer <= 0) {
+          perfectText.classList.remove('show');
+        }
+      }
+
+      // Screen shake
+      if (shakeAmount > 0) {
+        shakeAmount *= 0.85;
+        if (shakeAmount < 0.1) shakeAmount = 0;
+      }
+
+      // Smooth camera
+      cameraY += (targetCameraY - cameraY) * 0.08;
+
+      // Move current block
+      if (currentBlock && gameState === 'playing') {
+        currentBlock.x += currentBlock.speed;
+
+        // Bounce off edges
+        if (currentBlock.x + currentBlock.width > W + 50) {
+          currentBlock.speed = -Math.abs(currentBlock.speed);
+        } else if (currentBlock.x < -50) {
+          currentBlock.speed = Math.abs(currentBlock.speed);
+        }
+      }
+
+      // Update falling pieces
+      for (let i = fallingPieces.length - 1; i >= 0; i--) {
+        const p = fallingPieces[i];
+        p.vy += 0.4;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotSpeed;
+
+        if (p.y - cameraY > H + 200) {
+          fallingPieces.splice(i, 1);
+        }
+      }
+
+      // Update particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05;
+        p.life -= p.decay;
+
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    function drawBlock(block, camY) {
+      const x = block.x;
+      const y = block.y - camY;
+      const w = block.width;
+      const h = block.height;
+      const c = block.color;
+
+      // Glow effect
+      ctx.shadowColor = colorToString(c);
+      ctx.shadowBlur = 15;
+
+      // Fill
+      ctx.fillStyle = colorToString(c, 0.85);
+      ctx.fillRect(x, y, w, h);
+
+      // Bright border
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = colorToString(c);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+
+      // Top highlight
+      const grad = ctx.createLinearGradient(x, y, x, y + h);
+      grad.addColorStop(0, colorToString(c, 0.3));
+      grad.addColorStop(1, colorToString(c, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    function drawFallingPiece(piece, camY) {
+      const cx = piece.x + piece.width / 2;
+      const cy = piece.y + piece.height / 2 - camY;
+      const c = piece.color;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(piece.rotation);
+
+      ctx.globalAlpha = 0.7;
+      ctx.shadowColor = colorToString(c);
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = colorToString(c, 0.6);
+      ctx.fillRect(-piece.width / 2, -piece.height / 2, piece.width, piece.height);
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = colorToString(c, 0.4);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-piece.width / 2, -piece.height / 2, piece.width, piece.height);
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Dark gradient background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, '#0a0012');
+      bgGrad.addColorStop(0.5, '#0d001a');
+      bgGrad.addColorStop(1, '#050010');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle grid lines for depth
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const gridSize = 50;
+      const gridOffsetY = (cameraY % gridSize);
+      for (let y = -gridSize + gridOffsetY; y < H + gridSize; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      for (let x = 0; x < W; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+
+      ctx.save();
+
+      // Apply screen shake
+      if (shakeAmount > 0) {
+        ctx.translate(
+          (Math.random() - 0.5) * shakeAmount * 2,
+          (Math.random() - 0.5) * shakeAmount * 2
+        );
+      }
+
+      // Draw stack
+      for (const block of stack) {
+        const screenY = block.y - cameraY;
+        if (screenY > -BLOCK_HEIGHT && screenY < H + BLOCK_HEIGHT) {
+          drawBlock(block, cameraY);
+        }
+      }
+
+      // Draw current moving block
+      if (currentBlock) {
+        drawBlock(currentBlock, cameraY);
+      }
+
+      // Draw falling pieces
+      for (const piece of fallingPieces) {
+        drawFallingPiece(piece, cameraY);
+      }
+
+      // Draw particles
+      for (const p of particles) {
+        const screenY = p.y - cameraY;
+        ctx.globalAlpha = p.life;
+        ctx.shadowColor = colorToString(p.color);
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = colorToString(p.color);
+        ctx.beginPath();
+        ctx.arc(p.x, screenY, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      update();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Input handling
+    function handleInput() {
+      if (gameState === 'start') {
+        gameState = 'playing';
+        startScreen.classList.add('hide');
+        initGame();
+      } else if (gameState === 'playing') {
+        placeBlock();
+      }
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      handleInput();
+    });
+
+    startScreen.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      handleInput();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        if (gameState === 'gameover' && gameOverScreen.classList.contains('show')) {
+          restartGame();
+        } else {
+          handleInput();
+        }
+      }
+    });
+
+    restartBtn.addEventListener('click', restartGame);
+
+    function restartGame() {
+      gameOverScreen.classList.remove('show');
+      gameState = 'playing';
+      initGame();
+    }
+
+    // Start the loop
+    gameLoop();
+  </script>
+</body>
+</html>
