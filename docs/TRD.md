@@ -71,3 +71,10 @@ Run `npm test` with Node 18+. Fifteen tests cover game rules and the new sine-wa
 ## Ten-point scoring and results update
 
 Every landed block displays 10 points (10, 20, 30, …) in both modes. HUD, personal best and results use the same conversion. Stored records and internal engine counters remain block heights, preserving existing history without migration; misses earn no points and perfect-drop counts remain literal counts. The Game Over heading and score are larger using the existing fonts. Play Again uses a filled theme-colored button with a gentle glow animation, disabled for reduced-motion preference. Tower orbit behavior is unchanged. The settings gear has symmetrical teeth and a centered ring.
+
+
+### Mobile sound and personal records
+
+The original synthesized soundtrack starts from a click/tap, with retries after suspended or interrupted audio. A persistent Sound On / Muted control is available during play; music and effects volumes remain in Settings. Supported audio-session APIs request media playback. Mobile operating-system audio behavior still needs physical iOS and Android testing.
+
+Records now use a browser-local random player identifier and separate Classic/Zen values. New identities start at zero. Legacy records are preserved but only adopted via **Restore my previous records** in Settings, because their owner cannot be inferred. Reset personal bests affects only the current browser identity. There is no account synchronization; people sharing one browser also share its player identity.

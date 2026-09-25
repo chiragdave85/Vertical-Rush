@@ -1,9 +1,10 @@
 import {StackGame} from './engine.js';
 import {Soundscape} from './audio.js';
+import {playerRecords} from './records.js';
 import {Scene} from './scene.js';
 
 const $ = id => document.getElementById(id);
-// Persist block heights so existing records convert to points without migration.
+// Store block heights; show ten points per landed block.
 const points = height => height * 10;
 const store = {
   read(key, fallback) {
@@ -25,11 +26,8 @@ const scene = new Scene($('game-canvas'));
 let mode = 'classic', phase = 'home', last = performance.now(), lastPlace = 0;
 let feedbackUntil = 0;
 const game = new StackGame(mode);
-let best = store.read('vertical-rush-bests', {});
-if (!best || typeof best !== 'object') best = {};
-for (const key of ['classic', 'zen']) {
-  if (!Number.isSafeInteger(best[key]) || best[key] < 0) best[key] = 0;
-}
+const records = playerRecords(store);
+let best = records.best;
 
 function updateScore() {
   $('score').textContent = points(game.score);
@@ -37,6 +35,10 @@ function updateScore() {
 }
 function saveSettings() {
   audio.apply();
+  $('sound-enabled').checked = settings.enabled;
+  $('mute-button').setAttribute('aria-pressed', String(!settings.enabled));
+  $('mute-button').setAttribute('aria-label', settings.enabled ? 'Mute sound' : 'Unmute sound');
+  $('mute-label').textContent = settings.enabled ? 'SOUND ON' : 'MUTED';
   store.write('vertical-rush-settings', settings);
 }
 function setTheme(theme) {
@@ -75,7 +77,8 @@ function start() {
   lastPlace = performance.now();
   $('feedback').textContent = '';
   updateScore();
-  audio.unlock().then(() => {
+  audio.unlock().then(running => {
+    if (settings.enabled && !running) $('mute-label').textContent = 'TAP FOR SOUND';
     if (phase !== 'playing' || document.hidden) return;
     audio.effect('start');
     audio.play();
@@ -123,11 +126,16 @@ function place() {
   const result = game.place();
   if (!result) return;
   scene.drop(result.piece);
-  audio.effect(result.type, game.streak);
+  audio.unlock().then(() => {
+    if (document.hidden) return;
+    if (settings.enabled && audio.ctx?.state === 'running') $('mute-label').textContent = 'SOUND ON';
+    audio.effect(result.type, game.streak);
+    if (phase === 'playing') audio.play();
+  });
   if (result.type === 'perfect') scene.perfect(result.block);
   if (game.score > best[mode]) {
     best[mode] = game.score;
-    store.write('vertical-rush-bests', best);
+    records.save(mode, game.score);
   }
   updateScore();
   $('feedback').textContent = result.type === 'perfect'
@@ -144,7 +152,7 @@ function place() {
 }
 $('play-button').addEventListener('click', start);
 $('place-button').addEventListener('click', place);
-$('game-canvas').addEventListener('pointerdown', event => {
+$('game-canvas').addEventListener('click', event => {
   if (event.button !== 0) return;
   if (phase === 'home') start();
   else if (phase === 'playing') place();
@@ -165,10 +173,31 @@ for (const [button, dialog] of [['how-button', 'help-dialog'], ['settings-button
   $(button).addEventListener('click', () => { pause(); $(dialog).showModal(); });
 }
 $('sound-enabled').checked = settings.enabled;
-$('sound-enabled').addEventListener('change', event => {
-  settings.enabled = event.target.checked;
+function setSound(enabled) {
+  settings.enabled = enabled;
   saveSettings();
-  if (settings.enabled) audio.unlock().then(() => audio.effect('ui'));
+  if (!enabled) { audio.pause(); return; }
+  audio.unlock().then(running => {
+    if (!settings.enabled || document.hidden) return;
+    if (!running) { $('mute-label').textContent = 'TAP FOR SOUND'; return; }
+    audio.effect('ui');
+    if (phase === 'playing') audio.play();
+  });
+}
+$('sound-enabled').addEventListener('change', event => setSound(event.target.checked));
+$('mute-button').addEventListener('click', () => {
+  // If the browser interrupted sound, the first tap retries instead of muting.
+  setSound($('mute-label').textContent === 'TAP FOR SOUND' || !settings.enabled);
+});
+$('restore-records').hidden = !Object.values(store.read('vertical-rush-bests', {}) || {}).some(value => Number.isSafeInteger(value) && value > 0);
+$('restore-records').addEventListener('click', () => {
+  records.restoreLegacy(); best = records.best; updateScore();
+  $('record-status').textContent = 'Previous records restored for this player.';
+});
+$('reset-records').addEventListener('click', () => {
+  if (!window.confirm('Reset your Classic and Zen personal bests on this browser?')) return;
+  records.reset(); best = records.best; updateScore();
+  $('record-status').textContent = 'Personal bests reset to zero.';
 });
 for (const kind of ['music', 'effects']) {
   $(kind + '-volume').value = Math.round(settings[kind] * 100);
@@ -184,7 +213,7 @@ for (const kind of ['music', 'effects']) {
   }));
 }
 document.addEventListener('click', event => {
-  if (event.target.closest('button') && !event.target.closest('#place-button,#play-button,#resume-button,#pause-button')) {
+  if (event.target.closest('button') && !event.target.closest('#place-button,#play-button,#resume-button,#pause-button,#mute-button')) {
     audio.unlock().then(() => audio.effect('ui'));
   }
 });

@@ -44,3 +44,10 @@ Earlier-version checks also covered Classic results, mode/palette selection, hel
 ## Results presentation update
 
 Verified a 12-block run displays 120 total points and a 120-point personal best, while 8 perfect drops remains 8. Visually checked desktop and 390×844 results, the corrected gear, and replay returning the HUD to zero. Temporary verification fixtures did not persist scores and were removed.
+
+
+### Mobile audio / record isolation regression
+- Automated: suspended and interrupted contexts resume; blocked startup retries; mute prevents resume; melody begins immediately without duplicate timers.
+- Automated: new identity ignores legacy 160 points; records survive reload, remain isolated between browser stores, validate malformed data, and reset.
+- Browser: 390 × 844 controls fit without overlapping score. This embedded browser displayed the audio retry fallback, so audible playback is not verified here.
+- Physical-device follow-up: Chrome on iOS and Android, start by tapping arena and start button, mute/unmute, reload with mute saved, background/resume, adjust music volume, verify a fresh browser begins at zero.

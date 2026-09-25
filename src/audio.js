@@ -3,9 +3,12 @@ export class Soundscape {
   constructor(settings) { this.settings = settings; this.step = 0; this.active = false; }
   async unlock() {
     try {
-      if (!this.ctx) {
+      if (!this.settings.enabled) return false;
+      if (!this.ctx || this.ctx.state === 'closed') {
         const Audio = window.AudioContext || window.webkitAudioContext;
         if (!Audio) return;
+        // Use the media playback session on browsers that expose it (including iOS).
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch {}
         this.ctx = new Audio();
         this.music = this.ctx.createGain(); this.fx = this.ctx.createGain();
         const compressor = this.ctx.createDynamicsCompressor();
@@ -13,13 +16,14 @@ export class Soundscape {
         this.music.connect(compressor); this.fx.connect(compressor); compressor.connect(this.ctx.destination);
         this.apply();
       }
-      if (this.ctx.state === 'suspended') await this.ctx.resume();
-    } catch { /* Audio is optional; gameplay stays available. */ }
+      if (this.ctx.state !== 'running') await this.ctx.resume();
+      return this.ctx.state === 'running';
+    } catch (error) { console.warn('Audio could not start:', error.message); return false; }
   }
   apply() {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
-    this.music.gain.setTargetAtTime(this.settings.enabled ? this.settings.music * .3 : 0,t,.08);
+    this.music.gain.setTargetAtTime(this.settings.enabled ? this.settings.music * .7 : 0,t,.08);
     this.fx.gain.setTargetAtTime(this.settings.enabled ? this.settings.effects * .45 : 0,t,.025);
   }
   note(freq, delay = 0, duration = .5, volume = .25, bus = this.fx, type = 'sine') {
@@ -44,15 +48,17 @@ export class Soundscape {
   play() {
     if(this.active) return;
     this.active = true;
-    this.timer = setInterval(() => {
-      if(!this.ctx || !this.settings.enabled || document.hidden) return;
+    const beat = () => {
+      if(!this.ctx || !this.settings.enabled || this.ctx.state !== 'running' || document.hidden) return;
       const melody = [0,2,4,2,1,3,4,6,4,2,1,3,2,0,1,2];
       const notes = [261.63,293.66,329.63,392,440,523.25,587.33];
       this.note(notes[melody[this.step%16]],0,1.1,.12,this.music,'triangle');
       if(this.step%8===0) [130.81,164.81,196].forEach(f=>this.note(f,0,3.4,.12,this.music));
       if(this.step%2===0) this.note(65.41,0,.18,.23,this.music);
       this.step++;
-    },375);
+    };
+    beat();
+    this.timer = setInterval(beat,375);
   }
   pause() { clearInterval(this.timer); this.active = false; }
   async suspend() {this.pause();try {if(this.ctx?.state === 'running') await this.ctx.suspend();} catch {}}

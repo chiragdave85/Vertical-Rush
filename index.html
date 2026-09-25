@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.2">
+  <link rel="stylesheet" href="styles.css?v=1.3">
 </head>
 <body data-theme="neon" data-phase="home">
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -21,6 +21,7 @@
   </defs></svg>
   <main id="arena" aria-label="Vertical Rush game">
     <canvas id="game-canvas" aria-label="Perspective block stacking arena. Press Space or use Place block to play."></canvas>
+    <button id="mute-button" class="sound-control" aria-label="Mute sound" aria-pressed="false"><svg aria-hidden="true"><use href="#sound"/></svg><span id="mute-label">SOUND ON</span></button>
     <div class="top-controls"><button id="pause-button" class="icon-button" aria-label="Pause game" hidden><svg><use href="#pause"/></svg></button><button id="settings-button" class="icon-button" aria-label="Open settings"><svg><use href="#settings"/></svg></button></div>
     <section id="start-screen" class="start-screen" aria-label="Start game">
       <h1>VERTICAL RUSH</h1>
@@ -38,7 +39,8 @@
     <label class="toggle-row" for="sound-enabled"><span><svg><use href="#sound"/></svg> Sound enabled</span><input id="sound-enabled" type="checkbox" checked></label>
     <label class="slider-label" for="music-volume">Music <output id="music-value">35%</output></label><input id="music-volume" type="range" min="0" max="100" value="35">
     <label class="slider-label" for="effects-volume">Interaction sounds <output id="effects-value">65%</output></label><input id="effects-volume" type="range" min="0" max="100" value="65">
-    <p class="dialog-note">Original music. Your own rhythm.<br>Settings and personal records stay on this device.</p>
+    <div class="record-controls"><button id="restore-records" class="text-button" hidden>RESTORE MY PREVIOUS RECORDS</button><button id="reset-records" class="text-button">RESET MY PERSONAL BESTS</button><p id="record-status" aria-live="polite"></p></div>
+    <p class="dialog-note">Original music. Your own rhythm.<br>Your personal bests belong to this browser, not the shared link. They do not sync between devices.</p>
   </dialog>
   <dialog id="help-dialog" aria-labelledby="help-title"><form method="dialog"><button class="close-button" aria-label="Close instructions">×</button></form><span class="eyebrow">FIND YOUR RHYTHM</span><h2 id="help-title">HOW TO PLAY</h2><ol><li><strong>Time your drop.</strong> Tap the arena, use Place block, or press Space when the moving block aligns with the tower.</li><li><strong>Stay precise.</strong> Overhanging edges fall away. Every landed block earns 10 points. Perfect drops keep your block whole and build a melodic streak.</li><li><strong>Keep climbing.</strong> Classic uses a steady, flowing pace. In Zen, movement is slower and a miss gives you another try.</li></ol><p><kbd>P</kbd> or <kbd>ESC</kbd> pauses and resumes. Switching tabs pauses automatically. Opening settings pauses an active run; close settings and resume when you’re ready.</p></dialog>
   <script type="module" src="src/app.js"></script>
