@@ -3,6 +3,8 @@ import {Soundscape} from './audio.js';
 import {Scene} from './scene.js';
 
 const $ = id => document.getElementById(id);
+// Persist block heights so existing records convert to points without migration.
+const points = height => height * 10;
 const store = {
   read(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
@@ -30,8 +32,8 @@ for (const key of ['classic', 'zen']) {
 }
 
 function updateScore() {
-  $('score').textContent = game.score;
-  $('header-best').textContent = best[mode];
+  $('score').textContent = points(game.score);
+  $('header-best').textContent = points(best[mode]);
 }
 function saveSettings() {
   audio.apply();
@@ -85,8 +87,8 @@ function showOverlay(paused) {
   $('overlay-eyebrow').textContent = paused ? 'TAKE A BREATH'
     : game.score > 0 && game.score === best[mode] ? 'PERSONAL BEST' : 'ONE MORE CHANCE TO RISE';
   $('overlay-title').textContent = paused ? 'PAUSED' : 'GAME OVER';
-  $('overlay-copy').textContent = paused ? 'Your tower will be right here.' : `Personal best: ${best[mode]} blocks`;
-  $('result-score').textContent = game.score;
+  $('overlay-copy').textContent = paused ? 'Your tower will be right here.' : `Personal best: ${points(best[mode])} points`;
+  $('result-score').textContent = points(game.score);
   $('result-perfect').textContent = game.perfects;
   $('resume-button').innerHTML = `${paused ? 'RESUME' : 'PLAY AGAIN'} <svg aria-hidden="true"><use href="#arrow"/></svg>`;
   $('resume-button').focus({preventScroll:true});

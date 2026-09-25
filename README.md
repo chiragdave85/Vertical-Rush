@@ -77,3 +77,7 @@ When Classic ends, the camera eases back to frame the retained tower and slowly 
 ## Vercel deployment
 
 The root `vercel.json` runs the tests and `npm run build`, then publishes only `dist/`. The build copies the game files without runtime dependencies; documentation, tests, and local scratch folders are not deployed. Use the repository root and the Other framework preset. Production tracks `main`.
+
+## Ten-point scoring and results update
+
+Every landed block displays 10 points (10, 20, 30, …) in both modes. HUD, personal best and results use the same conversion. Stored records and internal engine counters remain block heights, preserving existing history without migration; misses earn no points and perfect-drop counts remain literal counts. The Game Over heading and score are larger using the existing fonts. Play Again uses a filled theme-colored button with a gentle glow animation, disabled for reduced-motion preference. Tower orbit behavior is unchanged. The settings gear has symmetrical teeth and a centered ring.

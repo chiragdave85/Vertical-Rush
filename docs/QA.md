@@ -40,3 +40,7 @@ Earlier-version checks also covered Classic results, mode/palette selection, hel
 - All 15 automated tests pass, including all-quadrant face selection, short/tall/retained-stack framing, frame-rate-independent rotation, immutable game geometry, reduced motion and reset.
 - Browser fixture exercised the real results path with a deterministic 20-block tower and disabled persistence/audio; inspected the visible stack, eased framing and opposite-side rendering. No browser errors or warnings were reported. The temporary fixture was removed after verification.
 - Physical-device motion comfort remains part of the broader release review.
+
+## Results presentation update
+
+Verified a 12-block run displays 120 total points and a 120-point personal best, while 8 perfect drops remains 8. Visually checked desktop and 390×844 results, the corrected gear, and replay returning the HUD to zero. Temporary verification fixtures did not persist scores and were removed.

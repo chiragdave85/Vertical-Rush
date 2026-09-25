@@ -7,9 +7,22 @@ dialog{width:min(430px,calc(100% - 32px));max-height:calc(100svh - 40px);padding
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
 /* The completed tower remains the centerpiece; only pause uses a frosted veil. */
 body[data-phase=over] .game-overlay{background:linear-gradient(180deg,#03070b18,#03070b05 65%,#03070b50);backdrop-filter:none}
-body[data-phase=over] .result-card{text-shadow:0 2px 14px #000,0 0 24px #000}
-body[data-phase=over] #overlay-title{color:#ff6b8b;font-size:24px;letter-spacing:5px;margin:12px 0}
-body[data-phase=over] .result-stats{margin:15px 0;gap:36px}
-body[data-phase=over] .result-stats strong{font-size:44px}
-body[data-phase=over] .primary-button{background:#050c1280;margin-top:20px;backdrop-filter:blur(3px)}
-body[data-phase=over] .result-card p{color:#b3c2ca}
+body[data-phase=over] .result-card{width:min(420px,100%);text-shadow:0 2px 14px #000,0 0 24px #000}
+body[data-phase=over] .eyebrow{font-size:11px;letter-spacing:2.7px}
+body[data-phase=over] #overlay-title{color:#ff7b99;font-size:clamp(36px,5vw,56px);font-weight:500;letter-spacing:5px;margin:15px 0;text-shadow:0 0 28px #ff6b8b45,0 3px 16px #000}
+body[data-phase=over] .result-stats{margin:27px 0;gap:0;align-items:center}
+body[data-phase=over] .result-stats>div{flex:1;padding:0 14px}
+body[data-phase=over] .result-stats>div+div{border-left:1px solid rgba(var(--accent-rgb),.3)}
+body[data-phase=over] .result-stats strong{font-size:clamp(58px,7vw,78px);font-weight:300;line-height:1.05;font-variant-numeric:tabular-nums}
+body[data-phase=over] #result-perfect{font-size:clamp(38px,5vw,50px);color:#e0e9ef}
+body[data-phase=over] .result-stats span{font-size:10px;letter-spacing:1.7px;color:#c1ced7;margin-top:12px}
+body[data-phase=over] .primary-button{position:relative;min-height:60px;background:var(--accent);border-color:var(--accent);border-radius:10px;color:#081219;font-size:15px;font-weight:500;letter-spacing:2.5px;margin-top:28px;text-shadow:none;box-shadow:0 0 22px rgba(var(--accent-rgb),.2);transition:transform .2s,filter .2s;animation:replay-glow 3s ease-in-out infinite}
+body[data-phase=over] .primary-button:hover{transform:translateY(-2px);filter:brightness(1.1)}
+body[data-phase=over] .primary-button:active{transform:translateY(0)}
+body[data-phase=over] .primary-button svg{width:22px;height:22px;stroke-width:2}
+body[data-phase=over] .result-card p{color:#c1ced7;font-size:14px}
+body[data-phase=over] #home-button{font-size:10px;letter-spacing:2px;color:#b3c2ca;margin-top:5px}
+#settings-button svg{width:24px;height:24px;display:block;flex-shrink:0;stroke-width:1.6}
+@keyframes replay-glow{0%,100%{box-shadow:0 0 18px rgba(var(--accent-rgb),.18)}50%{box-shadow:0 0 32px rgba(var(--accent-rgb),.38)}}
+@media(max-height:560px){body[data-phase=over] #overlay-title{font-size:34px;margin:8px 0}body[data-phase=over] .result-stats{margin:12px 0}body[data-phase=over] .result-stats strong{font-size:48px}body[data-phase=over] #result-perfect{font-size:34px}body[data-phase=over] .primary-button{margin-top:14px;min-height:48px}body[data-phase=over] .result-card p{margin:6px 0}}
+@media(prefers-reduced-motion:reduce){body[data-phase=over] .primary-button{animation:none;transform:none}}

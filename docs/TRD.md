@@ -67,3 +67,7 @@ Run `npm test` with Node 18+. Fifteen tests cover game rules and the new sine-wa
 ## Finale camera
 
 `Scene.beginFinale()` captures the rendered yaw. The orbit eases into 0.12 rad/s (roughly 52 seconds per revolution) using a frame-rate-independent integrated velocity ramp. Camera elevation targets the midpoint of retained block bounds; distance scales with tower height and viewport dimensions. Visible x/z walls are selected by yaw quadrant so the full orbit preserves solid faces. Grid and tower share the same camera. The engine remains frozen. Reduced motion holds orientation and snaps framing. Replay/home clears finale state. Modal dialogs and hidden tabs suspend the animation.
+
+## Ten-point scoring and results update
+
+Every landed block displays 10 points (10, 20, 30, …) in both modes. HUD, personal best and results use the same conversion. Stored records and internal engine counters remain block heights, preserving existing history without migration; misses earn no points and perfect-drop counts remain literal counts. The Game Over heading and score are larger using the existing fonts. Play Again uses a filled theme-colored button with a gentle glow animation, disabled for reduced-motion preference. Tower orbit behavior is unchanged. The settings gear has symmetrical teeth and a centered ring.

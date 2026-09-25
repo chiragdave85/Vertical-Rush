@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=1.2">
 </head>
 <body data-theme="neon" data-phase="home">
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
-    <symbol id="settings" viewBox="0 0 24 24"><path d="m9 3 1-1h4l1 3 3 1 3 1v4l-2 1-1 3 1 3-3 3-3-1-3 1-2-2H4l-2-4 2-2V9L3 6l3-3 3 1Z"/><circle cx="12" cy="12" r="3.3"/></symbol>
+    <symbol id="settings" viewBox="0 0 24 24"><path d="M10.234 4.917L10.678 2.592L13.322 2.592L13.766 4.917L15.760 5.743L17.717 4.413L19.587 6.283L18.257 8.240L19.083 10.234L21.408 10.678L21.408 13.322L19.083 13.766L18.257 15.760L19.587 17.717L17.717 19.587L15.760 18.257L13.766 19.083L13.322 21.408L10.678 21.408L10.234 19.083L8.240 18.257L6.283 19.587L4.413 17.717L5.743 15.760L4.917 13.766L2.592 13.322L2.592 10.678L4.917 10.234L5.743 8.240L4.413 6.283L6.283 4.413L8.240 5.743Z"/><circle cx="12" cy="12" r="3.25"/></symbol>
     <symbol id="pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
     <symbol id="sound" viewBox="0 0 24 24"><path d="m11 4-5 4H3v8h3l5 4V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
@@ -27,9 +27,9 @@
       <button id="play-button" class="start-button">TAP TO START</button>
       <p class="record-line">PERSONAL BEST <span id="header-best">0</span></p>
     </section>
-    <div id="score-hud" class="score-hud" hidden><span class="sr-only">Height in blocks</span><strong id="score">0</strong><span id="feedback" aria-live="polite"></span></div>
+    <div id="score-hud" class="score-hud" hidden><span class="sr-only">Score in points</span><strong id="score">0</strong><span id="feedback" aria-live="polite"></span></div>
     <button id="place-button" class="place-button" hidden>PLACE BLOCK <kbd>SPACE</kbd></button>
-    <div id="game-overlay" class="game-overlay" hidden><section class="result-card" aria-labelledby="overlay-title"><span id="overlay-eyebrow" class="eyebrow">TAKE A BREATH</span><h2 id="overlay-title">PAUSED</h2><p id="overlay-copy">Your tower will be right here.</p><div id="result-stats" class="result-stats" hidden><div><strong id="result-score">0</strong><span>BLOCKS HIGH</span></div><div><strong id="result-perfect">0</strong><span>PERFECT DROPS</span></div></div><button id="resume-button" class="primary-button">RESUME <svg><use href="#arrow"/></svg></button><button id="home-button" class="text-button">BACK TO START</button></section></div>
+    <div id="game-overlay" class="game-overlay" hidden><section class="result-card" aria-labelledby="overlay-title"><span id="overlay-eyebrow" class="eyebrow">TAKE A BREATH</span><h2 id="overlay-title">PAUSED</h2><p id="overlay-copy">Your tower will be right here.</p><div id="result-stats" class="result-stats" hidden><div><strong id="result-score">0</strong><span>TOTAL POINTS</span></div><div><strong id="result-perfect">0</strong><span>PERFECT DROPS</span></div></div><button id="resume-button" class="primary-button">RESUME <svg><use href="#arrow"/></svg></button><button id="home-button" class="text-button">BACK TO START</button></section></div>
     <div class="arena-footer"><span id="arena-mode">CLASSIC</span><span id="control-hint">SPACE TO START · HEADPHONES RECOMMENDED</span><button id="how-button" class="text-button">HOW TO PLAY</button></div>
   </main>
   <dialog id="settings-dialog" aria-labelledby="settings-title"><form method="dialog"><button class="close-button" aria-label="Close settings">×</button></form><span class="eyebrow">MAKE IT YOURS</span><h2 id="settings-title">SETTINGS</h2>
@@ -40,7 +40,7 @@
     <label class="slider-label" for="effects-volume">Interaction sounds <output id="effects-value">65%</output></label><input id="effects-volume" type="range" min="0" max="100" value="65">
     <p class="dialog-note">Original music. Your own rhythm.<br>Settings and personal records stay on this device.</p>
   </dialog>
-  <dialog id="help-dialog" aria-labelledby="help-title"><form method="dialog"><button class="close-button" aria-label="Close instructions">×</button></form><span class="eyebrow">FIND YOUR RHYTHM</span><h2 id="help-title">HOW TO PLAY</h2><ol><li><strong>Time your drop.</strong> Tap the arena, use Place block, or press Space when the moving block aligns with the tower.</li><li><strong>Stay precise.</strong> Overhanging edges fall away. Perfect drops keep your block whole and build a melodic streak.</li><li><strong>Keep climbing.</strong> Classic uses a steady, flowing pace. In Zen, movement is slower and a miss gives you another try.</li></ol><p><kbd>P</kbd> or <kbd>ESC</kbd> pauses and resumes. Switching tabs pauses automatically. Opening settings pauses an active run; close settings and resume when you’re ready.</p></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><form method="dialog"><button class="close-button" aria-label="Close instructions">×</button></form><span class="eyebrow">FIND YOUR RHYTHM</span><h2 id="help-title">HOW TO PLAY</h2><ol><li><strong>Time your drop.</strong> Tap the arena, use Place block, or press Space when the moving block aligns with the tower.</li><li><strong>Stay precise.</strong> Overhanging edges fall away. Every landed block earns 10 points. Perfect drops keep your block whole and build a melodic streak.</li><li><strong>Keep climbing.</strong> Classic uses a steady, flowing pace. In Zen, movement is slower and a miss gives you another try.</li></ol><p><kbd>P</kbd> or <kbd>ESC</kbd> pauses and resumes. Switching tabs pauses automatically. Opening settings pauses an active run; close settings and resume when you’re ready.</p></dialog>
   <script type="module" src="src/app.js"></script>
 </body>
 </html>

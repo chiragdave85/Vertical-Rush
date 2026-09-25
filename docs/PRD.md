@@ -49,3 +49,7 @@ Pass rule tests and browser smoke flows, then complete outstanding checks in QA.
 ## End-of-game showcase
 
 After a Classic miss, present the completed tower with a slow continuous camera orbit and an eased pullback that frames the retained stack. Keep results and replay usable without blurring the tower. Do not orbit during active gameplay or pause. Respect reduced-motion preference and reset the view on replay/home.
+
+## Ten-point scoring and results update
+
+Every landed block displays 10 points (10, 20, 30, …) in both modes. HUD, personal best and results use the same conversion. Stored records and internal engine counters remain block heights, preserving existing history without migration; misses earn no points and perfect-drop counts remain literal counts. The Game Over heading and score are larger using the existing fonts. Play Again uses a filled theme-colored button with a gentle glow animation, disabled for reduced-motion preference. Tower orbit behavior is unchanged. The settings gear has symmetrical teeth and a centered ring.
