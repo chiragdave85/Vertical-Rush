@@ -1,0 +1,12 @@
+{
+  "name": "vertical-rush",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A full-screen neon perspective stacking arcade",
+  "scripts": {
+    "start": "python3 -m http.server 8000 --bind 127.0.0.1",
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs"
+  }
+}
