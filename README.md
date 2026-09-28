@@ -88,3 +88,6 @@ Every landed block displays 10 points (10, 20, 30, …) in both modes. HUD, pers
 The original synthesized soundtrack starts from a click/tap, with retries after suspended or interrupted audio. A persistent Sound On / Muted control is available during play; music and effects volumes remain in Settings. Supported audio-session APIs request media playback. Mobile operating-system audio behavior still needs physical iOS and Android testing.
 
 Records now use a browser-local random player identifier and separate Classic/Zen values. New identities start at zero. Legacy records are preserved but only adopted via **Restore my previous records** in Settings, because their owner cannot be inferred. Reset personal bests affects only the current browser identity. There is no account synchronization; people sharing one browser also share its player identity.
+
+
+Choose **Classic** or **Zen** directly on the start screen. Your selection is remembered in this browser. To switch during a run, open Settings, select the other mode, then tap **Start new game**. Closing Settings without starting preserves the current run. Zen retains its slower movement and unlimited retries.

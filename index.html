@@ -26,6 +26,7 @@
     <section id="start-screen" class="start-screen" aria-label="Start game">
       <h1>VERTICAL RUSH</h1>
       <button id="play-button" class="start-button">TAP TO START</button>
+      <div class="mode-tabs home-mode-tabs" role="group" aria-label="Game mode"><button type="button" data-mode="classic" aria-pressed="true">Classic</button><button type="button" data-mode="zen" aria-pressed="false">Zen</button></div>
       <p class="record-line">PERSONAL BEST <span id="header-best">0</span></p>
     </section>
     <div id="score-hud" class="score-hud" hidden><span class="sr-only">Score in points</span><strong id="score">0</strong><span id="feedback" aria-live="polite"></span></div>
@@ -34,7 +35,7 @@
     <div class="arena-footer"><span id="arena-mode">CLASSIC</span><span id="control-hint">SPACE TO START · HEADPHONES RECOMMENDED</span><button id="how-button" class="text-button">HOW TO PLAY</button></div>
   </main>
   <dialog id="settings-dialog" aria-labelledby="settings-title"><form method="dialog"><button class="close-button" aria-label="Close settings">×</button></form><span class="eyebrow">MAKE IT YOURS</span><h2 id="settings-title">SETTINGS</h2>
-    <fieldset class="mode-picker"><legend>GAME MODE</legend><div class="mode-tabs"><button data-mode="classic" aria-pressed="true">Classic</button><button data-mode="zen" aria-pressed="false">Zen</button></div><p id="mode-description">A steady rhythm. One chance to land it.</p></fieldset>
+    <fieldset class="mode-picker"><legend>GAME MODE</legend><div class="mode-tabs"><button data-mode="classic" aria-pressed="true">Classic</button><button data-mode="zen" aria-pressed="false">Zen</button></div><p id="mode-description">A steady rhythm. One chance to land it.</p><p id="mode-switch-note" hidden>Starting a new mode ends this run. Your personal best is saved.</p><button type="button" id="start-mode-button" class="primary-button" hidden>START NEW ZEN GAME</button></fieldset>
     <fieldset class="theme-picker"><legend>COLOR PALETTE <span id="theme-name">Neon</span></legend><div class="palette-options"><button data-palette="neon" aria-pressed="true"><span class="swatch neon"></span>Neon</button><button data-palette="lavender" aria-pressed="false"><span class="swatch lavender"></span>Lavender</button><button data-palette="mint" aria-pressed="false"><span class="swatch mint"></span>Mint</button><button data-palette="peach" aria-pressed="false"><span class="swatch peach"></span>Peach</button></div></fieldset>
     <label class="toggle-row" for="sound-enabled"><span><svg><use href="#sound"/></svg> Sound enabled</span><input id="sound-enabled" type="checkbox" checked></label>
     <label class="slider-label" for="music-volume">Music <output id="music-value">35%</output></label><input id="music-volume" type="range" min="0" max="100" value="35">

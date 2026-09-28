@@ -23,7 +23,9 @@ const settings = {
 };
 const audio = new Soundscape(settings);
 const scene = new Scene($('game-canvas'));
-let mode = 'classic', phase = 'home', last = performance.now(), lastPlace = 0;
+const savedMode = store.read('vertical-rush-mode', 'classic');
+let mode = savedMode === 'zen' ? 'zen' : 'classic';
+let pendingMode = mode, phase = 'home', last = performance.now(), lastPlace = 0;
 let feedbackUntil = 0;
 const game = new StackGame(mode);
 const records = playerRecords(store);
@@ -64,10 +66,7 @@ function setPhase(next) {
     : phase === 'over' ? 'YOUR TOWER. ONE LAST LOOK.'
     : phase === 'paused' ? 'P TO RESUME'
     : 'TAP OR SPACE TO PLACE · P TO PAUSE';
-  document.querySelectorAll('[data-mode]').forEach(button => button.disabled = phase !== 'home');
-  $('mode-description').textContent = phase !== 'home'
-    ? 'Return to the start to change your mode.'
-    : mode === 'classic' ? 'A steady rhythm. One chance to land it.' : 'A slower flow. Unlimited retries.';
+  updateModeControls();
 }
 function start() {
   if (phase === 'playing') return;
@@ -116,6 +115,7 @@ function resume() {
 function home() {
   audio.pause();
   scene.reset();
+  pendingMode = mode;
   setPhase('home');
   updateScore();
   $('play-button').focus({preventScroll:true});
@@ -160,14 +160,37 @@ $('game-canvas').addEventListener('click', event => {
 $('pause-button').addEventListener('click', pause);
 $('resume-button').addEventListener('click', () => phase === 'paused' ? resume() : start());
 $('home-button').addEventListener('click', home);
-document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
-  if (phase !== 'home') return;
-  mode = button.dataset.mode;
-  document.querySelectorAll('[data-mode]').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+function updateModeControls() {
+  document.querySelectorAll('[data-mode]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.mode === pendingMode));
+  });
   $('arena-mode').textContent = mode.toUpperCase();
-  setPhase('home');
-  updateScore();
+  const switching = pendingMode !== mode;
+  $('mode-description').textContent = pendingMode === 'zen'
+    ? 'A slower flow. Unlimited retries.' : 'A steady rhythm. One chance to land it.';
+  $('start-mode-button').hidden = phase === 'home' || !switching;
+  $('start-mode-button').textContent = `START NEW ${pendingMode.toUpperCase()} GAME`;
+  $('mode-switch-note').hidden = phase === 'home' || !switching;
+}
+document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+  pendingMode = button.dataset.mode;
+  if (phase === 'home') {
+    mode = pendingMode;
+    store.write('vertical-rush-mode', mode);
+    updateScore();
+  }
+  updateModeControls();
 }));
+$('start-mode-button').addEventListener('click', () => {
+  mode = pendingMode;
+  store.write('vertical-rush-mode', mode);
+  $('settings-dialog').close();
+  start();
+});
+$('settings-dialog').addEventListener('close', () => {
+  pendingMode = mode;
+  updateModeControls();
+});
 document.querySelectorAll('[data-palette]').forEach(button => button.addEventListener('click', () => setTheme(button.dataset.palette)));
 for (const [button, dialog] of [['how-button', 'help-dialog'], ['settings-button', 'settings-dialog']]) {
   $(button).addEventListener('click', () => { pause(); $(dialog).showModal(); });
@@ -236,6 +259,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', () => audio.suspend());
 setTheme(store.read('vertical-rush-neon-theme', 'neon'));
 saveSettings();
+updateModeControls();
 updateScore();
 function frame(now) {
   const dt = Math.min((now - last) / 1000, .05);

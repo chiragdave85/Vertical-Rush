@@ -51,3 +51,7 @@ Verified a 12-block run displays 120 total points and a 120-point personal best,
 - Automated: new identity ignores legacy 160 points; records survive reload, remain isolated between browser stores, validate malformed data, and reset.
 - Browser: 390 × 844 controls fit without overlapping score. This embedded browser displayed the audio retry fallback, so audible playback is not verified here.
 - Physical-device follow-up: Chrome on iOS and Android, start by tapping arena and start button, mute/unmute, reload with mute saved, background/resume, adjust music volume, verify a fresh browser begins at zero.
+
+
+### Zen selection regression
+Verified in the browser at 390 × 844: choose Zen on the start screen, reload with Zen still selected, start and miss without ending the game. During a run, Settings allows choosing another mode with an explicit Start new game action. Verified Classic → Zen and Zen → Classic launch correctly. Physical iOS/Android testing remains outstanding.
